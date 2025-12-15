@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Minhas Contas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIk1pbmhhcyBDb250YXMiLAogICJzaG9ydF9uYW1lIjogIk1pbmhhcyBDb250YXMiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzI3YWM2MCIsCiAgInRoZW1lX2NvbG9yIjogIiMyN2FjNjAiLAogICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsCiAgImljb25zIjogW3sKICAgICJzcmMiOiAiaHR0cHM6Ly9jZG4uaWNvbnMucG5nLmZsYXRpY29uLmNvbS81MTIvNDc4Mi80NzgyNzUucG5nIiwKICAgICJzaXplcyI6ICIxOTJ4MTkyIiwKICAgICJ0eXBlIjogImltYWdlL3BuZyIKICB9LHsKICAgICJzcmMiOiAiaHR0cHM6Ly9jZG4uaWNvbnMucG5nLmZsYXRpY29uLmNvbS81MTIvNDc4Mi80NzgyNzUucG5nIiwKICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICJ0eXBlIjogImltYWdlL3BuZyIKICB9XSwKICAic2NvcGUiOiAiLyIKfQ==">
+<link rel="apple-touch-icon" href="https://cdn.icons.png.flaticon.com/512/4782/478275.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#27ac60">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
+  body{background:#f8f9fc;padding-bottom:100px;min-height:100vh;color:#2c3e50}
+  header{background:#27ac60;color:white;text-align:center;padding:22px;font-size:1.6rem;font-weight:700}
+  .container{max-width:500px;margin:0 auto;padding:15px}
+  .card{background:white;border-radius:20px;padding:26px;margin-bottom:20px;box-shadow:0 10px 30px rgba(0,0,0,0.08 );border:1px solid #eee}
+  h2{font-size:1.5rem;margin-bottom:22px;padding-bottom:12px;border-bottom:2px solid #eef;font-weight:700}
+  label{display:block;margin:16px 0 8px;font-weight:600;color:#2c3e50}
+  input,select{width:100%;padding:16px;border:1px solid #ddd;border-radius:14px;font-size:1.1rem;background:#fdfdfd;transition:all .2s}
+  input:focus,select:focus{outline:none;border-color:#27ac60;box-shadow:0 0 0 3px rgba(39,172,96,0.15)}
+  button{background:#27ac60;color:white;border:none;padding:17px;border-radius:14px;width:100%;font-size:1.25rem;margin-top:25px;font-weight:600;cursor:pointer;transition:all .2s}
+  button:hover{background:#1e8e4a}
+  button:active{transform:scale(0.98)}
+  .summary{display:flex;gap:14px;margin:25px 0}
+  .summary div{flex:1;text-align:center;padding:22px;border-radius:18px;color:white;font-weight:bold;font-size:1.15rem;box-shadow:0 6px 15px rgba(0,0,0,0.15)}
+  .income{background:#27ae60}
+  .expense{background:#e74c3c}
+  .balance{background:#2980b9}
+  .paid{background:#8e44ad}
+  ul{list-style:none;margin-top:15px}
+  li{padding:20px;background:#f8f9fa;border-radius:16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;position:relative;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+  .recorrente{opacity:0.75}
+  .recorrente::after{content:" ↺ Recorrente";color:#27ae60;font-weight:bold;font-size:0.9rem}
+  .goal-progress{height:14px;background:#e0e0e0;border-radius:7px;margin:14px 0;overflow:hidden}
+  .goal-progress-bar{height:100%;background:#27ac60;border-radius:7px;transition:width .6s ease}
+  .nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #ddd;display:flex;box-shadow:0 -8px 25px rgba(0,0,0,0.12);height:88px;z-index:1000}
+  .nav-button{flex:1;padding:12px 5px;text-align:center;border:none;background:none;color:#7f8c8d;font-size:0.9rem;font-weight:600;transition:all .2s}
+  .nav-button.active{color:#27ac60;font-weight:700;border-top:4px solid #27ac60;padding-top:8px}
+  .nav-button svg{width:28px;height:28px;margin-bottom:5px;display:block;margin:0 auto 4px}
+  .tab-content{display:none;animation:fadeIn .4s ease-in-out}
+  .tab-content.active{display:block}
+  canvas{margin:25px 0}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  .backup-btn{background:#3498db!important;margin:10px 5px!important;width:auto!important;padding:12px 20px!important;font-size:1rem!important}
+  .backup-btn.restore{background:#2980b9!important}
+  .paid-checkbox-label {display: flex; align-items: center; cursor: pointer; font-size: 0.9rem; color: #34495e; margin-top: 10px;}
+  .paid-checkbox {width: 20px; height: 20px; margin-right: 8px;}
+  li.is-paid {opacity: 0.6; background: #f0f0f0;}
+  li.is-paid strong {text-decoration: line-through;}
+  .goal-status { font-weight: bold; padding: 4px 8px; border-radius: 8px; color: white; font-size: 0.9rem; margin-top: 8px; display: inline-block; }
+  .goal-status.in-progress { background-color: #f39c12; }
+  .goal-status.achieved { background-color: #27ac60; }
+  #goals-list li { display: block; }
+  .goal-actions { margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .goal-actions button { width: auto; padding: 8px 16px; font-size: 0.9rem; margin-top: 0; }
+  .goal-actions .delete-btn { background-color: #e74c3c; }
+</style>
+</head>
+<body>
+
+<header>Minhas Contas</header>
+
+<div class="container">
+
+  <div id="dashboard" class="tab-content active">
+    <div class="card">
+      <h2>Resumo Mensal</h2>
+      <label>Filtrar por mês:</label>
+      <select id="month-filter"></select>
+
+      <div class="summary">
+        <div class="income">Receita  
+<span id="total-income">R$ 0,00</span></div>
+        <div class="expense">Despesa  
+<span id="total-expense">R$ 0,00</span></div>
+        <div class="balance">Saldo  
+<span id="current-balance">R$ 0,00</span></div>
+      </div>
+      <div class="summary">
+        <div class="paid" style="width:100%">Despesas Pagas  
+<span id="total-paid">R$ 0,00</span></div>
+      </div>
+
+      <div style="text-align:center;margin:20px 0">
+        <button class="backup-btn" onclick="exportar()">Fazer Backup</button>
+        <button class="backup-btn restore" onclick="importar.click()">Restaurar Backup</button>
+        <input type="file" id="importar" style="display:none" accept=".json" onchange="importarBackup(event)">
+      </div>
+
+      <h2>Gastos por Categoria</h2>
+      <canvas id="categoryChart"></canvas>
+
+      <h2>Evolução Mensal</h2>
+      <canvas id="evolutionChart"></canvas>
+
+      <h2>Últimas Transações</h2>
+      <ul id="transaction-list"></ul>
+    </div>
+  </div>
+
+  <div id="add-transaction" class="tab-content">
+    <div class="card">
+      <h2>Nova Transação</h2>
+      <form id="transaction-form">
+        <label>Descrição</label>
+        <input type="text" id="description" placeholder="Ex: Netflix, Aluguel..." required>
+
+        <label>Valor R$</label>
+        <input type="number" step="0.01" id="amount" placeholder="99,90" required>
+
+        <label>Tipo</label>
+        <select id="type" required>
+          <option value="income">Receita</option>
+          <option value="expense">Despesa</option>
+        </select>
+
+        <label>Categoria</label>
+        <select id="category">
+          <option value="Salário">Salário</option>
+          <option value="Restaurante">Restaurante</option>
+          <option value="Supermercado">Supermercado</option>
+          <option value="Transporte">Transporte</option>
+          <option value="Lazer">Lazer</option>
+          <option value="Fixo">Conta Fixa</option>
+          <option value="Saúde">Saúde</option>
+          <option value="PIX">PIX / Transferência</option>
+          <option value="Cartão">Cartão de Crédito</option>
+          <option value="Outros">Outros</option>
+        </select>
+
+        <label>Mês de Referência</label>
+        <select id="reference-month" required></select>
+
+        <label style="margin-top:25px;display:flex;align-items:center;gap:10px">
+          <input type="checkbox" id="recorrente">
+          <span>Conta fixa recorrente (repetir automaticamente nos próximos meses)</span>
+        </label>
+
+        <button type="submit">Salvar Transação</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="goals" class="tab-content">
+    <div class="card">
+      <h2>Minhas Metas</h2>
+      <form id="goal-form">
+        <input type="hidden" id="goal-id"> <!-- Campo oculto para edição -->
+        <label>Nome da Meta</label>
+        <input type="text" id="goal-name" placeholder="Ex: Viagem, Carro..." required>
+        <label>Valor Alvo R$</label>
+        <input type="number" step="0.01" id="goal-target" required>
+        <button type="submit" id="goal-submit-btn">Criar Meta</button>
+      </form>
+      <ul id="goals-list" style="margin-top:30px"></ul>
+    </div>
+  </div>
+
+</div>
+
+<div class="nav">
+  <button class="nav-button active" data-tab="dashboard">
+    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-8h8V3h-8v10z"/></svg>
+    Início
+  </button>
+  <button class="nav-button" data-tab="add-transaction">
+    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+    Adicionar
+  </button>
+  <button class="nav-button" data-tab="goals">
+    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    Metas
+  </button>
+</div>
+
+<script>
+let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+let goals = JSON.parse(localStorage.getItem('goals') || '[]').map(g => ({ ...g, id: g.id || Date.now() + Math.random() }));
+let categoryChart = null;
+let evolutionChart = null;
+
+const els = {
+  refMonth: document.getElementById('reference-month'),
+  list: document.getElementById('transaction-list'),
+  filter: document.getElementById('month-filter'),
+  income: document.getElementById('total-income'),
+  expense: document.getElementById('total-expense'),
+  balance: document.getElementById('current-balance'),
+  paid: document.getElementById('total-paid'),
+  goalsList: document.getElementById('goals-list'),
+  goalForm: document.getElementById('goal-form'),
+  goalId: document.getElementById('goal-id'),
+  goalName: document.getElementById('goal-name'),
+  goalTarget: document.getElementById('goal-target'),
+  goalSubmitBtn: document.getElementById('goal-submit-btn')
+};
+
+function popularMeses() {
+  const hoje = new Date();
+  const mesAtual = hoje.toISOString().slice(0,7);
+  els.refMonth.innerHTML = '';
+  for (let i = -12; i <= 12; i++) {
+    const d = new Date(hoje.getFullYear(), hoje.getMonth() + i, 1);
+    const ym = d.toISOString().slice(0,7);
+    const texto = d.toLocaleDateString('pt-BR', {month:'long', year:'numeric'}).replace(/^\w/, c => c.toUpperCase());
+    const opt = new Option(texto, ym);
+    if (ym === mesAtual) opt.selected = true;
+    els.refMonth.add(opt);
+  }
+}
+
+function atualizarFiltro() {
+  const mesesComTransacao = new Set(transactions.map(t => t.referenceMonth));
+  const hoje = new Date();
+  const mesAtual = hoje.toISOString().slice(0,7);
+  mesesComTransacao.add(mesAtual);
+  const ordenados = Array.from(mesesComTransacao).sort().reverse();
+  els.filter.innerHTML = `<option value="${mesAtual}">Mês atual (${new Date().toLocaleDateString('pt-BR', {month:'long', year:'numeric'}).replace(/^\w/, c=>c.toUpperCase())})</option>`;
+  ordenados.forEach(ym => {
+    if (ym !== mesAtual) {
+      const d = new Date(ym + '-01');
+      const texto = d.toLocaleDateString('pt-BR', {month:'long', year:'numeric'}).replace(/^\w/, c => c.toUpperCase());
+      els.filter.innerHTML += `<option value="${ym}">${texto}</option>`;
+    }
+  });
+}
+
+function atualizarTudo() {
+  const filtro = els.filter.value;
+  const filtradas = filtro === 'all' ? transactions : transactions.filter(t => t.referenceMonth === filtro);
+
+  let receita = 0, despesa = 0, pago = 0;
+  filtradas.forEach(t => {
+    const v = parseFloat(t.amount);
+    if (t.type === 'income') {
+      receita += v;
+    } else {
+      despesa += v;
+      if (t.paid) {
+        pago += v;
+      }
+    }
+  });
+  const saldo = receita - despesa;
+
+  els.income.textContent = `R$ ${receita.toFixed(2).replace('.',',')}`;
+  els.expense.textContent = `R$ ${despesa.toFixed(2).replace('.',',')}`;
+  els.balance.textContent = `R$ ${saldo.toFixed(2).replace('.',',')}`;
+  els.paid.textContent = `R$ ${pago.toFixed(2).replace('.',',')}`;
+  els.balance.parentElement.style.background = saldo >= 0 ? '#27ae60' : '#e74c3c';
+
+  els.list.innerHTML = '';
+  filtradas
+    .sort((a,b) => b.referenceMonth.localeCompare(a.referenceMonth) || b.date.localeCompare(a.date))
+    .forEach(t => {
+      const li = document.createElement('li');
+      li.classList.toggle('recorrente', t.recorrente);
+      li.classList.toggle('is-paid', t.paid);
+      const mesRef = new Date(t.referenceMonth + '-01').toLocaleDateString('pt-BR', {month:'long', year:'numeric'});
+      
+      const paidCheckboxHTML = t.type === 'expense' ? `
+        <label class="paid-checkbox-label">
+          <input type="checkbox" class="paid-checkbox" data-id="${t.id}" ${t.paid ? 'checked' : ''}>
+          Pago
+        </label>
+      ` : '';
+
+      li.innerHTML = `
+        <div>
+          <strong>${t.description}</strong>  
+
+          <small>${t.category} • ${mesRef}</small>
+          ${paidCheckboxHTML}
+        </div>
+        <div style="text-align:right">
+          <div style="color:${t.type==='income'?'#27ae60':'#e74c3c'};font-weight:bold;font-size:1.5rem">
+            ${t.type==='income' ? '+' : '-'} R$ ${parseFloat(t.amount).toFixed(2).replace('.',',')}
+          </div>
+          <div style="margin-top:12px">
+            <button style="padding:6px 14px;font-size:0.9rem">Editar</button>
+            <button style="padding:6px 14px;font-size:0.9rem;background:#e74c3c;margin-left:8px">Apagar</button>
+          </div>
+        </div>
+      `;
+      li.dataset.id = t.id;
+      els.list.appendChild(li);
+    });
+
+  const porCat = {};
+  filtradas.filter(t => t.type === 'expense').forEach(t => {
+    porCat[t.category] = (porCat[t.category] || 0) + parseFloat(t.amount);
+  });
+  if (categoryChart) categoryChart.destroy();
+  if (Object.keys(porCat).length > 0) {
+    categoryChart = new Chart(document.getElementById('categoryChart'), {
+      type: 'doughnut',
+      data: { labels: Object.keys(porCat), datasets: [{ data: Object.values(porCat), backgroundColor: ['#e74c3c','#f39c12','#3498db','#2ecc71','#9b59b6','#e67e22','#1abc9c'] }] },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+  }
+
+  atualizarGraficoEvolucao();
+
+  els.goalsList.innerHTML = '';
+  goals.forEach(g => {
+    const perc = g.targetAmount > 0 ? Math.min(100, (g.currentAmount / g.targetAmount) * 100) : 0;
+    const isAchieved = perc >= 100;
+    const statusClass = isAchieved ? 'achieved' : 'in-progress';
+    const statusText = isAchieved ? 'Alcançada!' : 'Em Andamento';
+
+    const li = document.createElement('li');
+    li.dataset.id = g.id;
+    li.innerHTML = `
+      <div>
+        <strong style="font-size:1.2rem">${g.name}</strong>
+        <span class="goal-status ${statusClass}">${statusText}</span>
+          
+
+        R$ ${g.currentAmount.toFixed(2).replace('.',',')} de R$ ${g.targetAmount.toFixed(2).replace('.',',')}  
+
+        <div class="goal-progress"><div class="goal-progress-bar" style="width:${perc}%"></div></div>
+        <strong style="color:#27ac60;font-size:1.3rem">${perc.toFixed(0)}% concluído</strong>
+      </div>
+      <div class="goal-actions">
+        ${!isAchieved ? `<button class="contribute-btn">Contribuir</button>` : ''}
+        <button class="edit-btn">Editar</button>
+        <button class="delete-btn">Apagar</button>
+      </div>
+    `;
+    els.goalsList.appendChild(li);
+  });
+}
+
+function atualizarGraficoEvolucao() {
+  const data = {};
+  const hoje = new Date();
+  
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+    const ym = d.toISOString().slice(0, 7);
+    const label = d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+    data[ym] = { label, income: 0, expense: 0, paid: 0 };
+  }
+
+  transactions.forEach(t => {
+    if (data[t.referenceMonth]) {
+      const amount = parseFloat(t.amount);
+      if (t.type === 'income') {
+        data[t.referenceMonth].income += amount;
+      } else {
+        data[t.referenceMonth].expense += amount;
+        if (t.paid) {
+          data[t.referenceMonth].paid += amount;
+        }
+      }
+    }
+  });
+
+  const labels = Object.values(data).map(d => d.label);
+  const incomeData = Object.values(data).map(d => d.income);
+  const expenseData = Object.values(data).map(d => d.expense);
+  const paidData = Object.values(data).map(d => d.paid);
+
+  if (evolutionChart) evolutionChart.destroy();
+  evolutionChart = new Chart(document.getElementById('evolutionChart'), {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Receita', data: incomeData, backgroundColor: '#27ae60' },
+        { label: 'Despesa Total', data: expenseData, backgroundColor: '#e74c3c' },
+        { label: 'Despesa Paga', data: paidData, backgroundColor: '#8e44ad' }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: { y: { beginAtZero: true } },
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+}
+
+document.getElementById('transaction-form').onsubmit = e => {
+  e.preventDefault();
+  const isRecorrente = document.getElementById('recorrente').checked;
+  const newTransactionBase = {
+    amount: parseFloat(document.getElementById('amount').value),
+    type: document.getElementById('type').value,
+    category: document.getElementById('category').value,
+    date: new Date().toISOString(),
+    paid: false
+  };
+
+  if (isRecorrente) {
+    const baseDesc = document.getElementById('description').value.trim();
+    for (let i = 0; i < 36; i++) {
+      const data = new Date();
+      data.setMonth(data.getMonth() + i);
+      const ym = data.toISOString().slice(0,7);
+      const jaExiste = transactions.some(t => t.referenceMonth === ym && t.description.includes(baseDesc) && t.amount == newTransactionBase.amount && t.recorrente);
+      if (!jaExiste) {
+        transactions.push({
+          ...newTransactionBase,
+          id: Date.now() + i * 1000,
+          description: baseDesc + " (recorrente)",
+          referenceMonth: ym,
+          recorrente: true
+        });
+      }
+    }
+  } else {
+    transactions.push({
+      ...newTransactionBase,
+      id: Date.now(),
+      description: document.getElementById('description').value.trim(),
+      referenceMonth: els.refMonth.value,
+      recorrente: false
+    });
+  }
+
+  localStorage.setItem('transactions', JSON.stringify(transactions));
+  e.target.reset();
+  document.getElementById('recorrente').checked = false;
+  popularMeses();
+  atualizarFiltro();
+  atualizarTudo();
+  document.querySelector('[data-tab="dashboard"]').click();
+  if ("vibrate" in navigator) navigator.vibrate(80);
+};
+
+function exportar() {
+  const dados = { transactions, goals };
+  const blob = new Blob([JSON.stringify(dados, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `backup-minhas-contas-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  if ("vibrate" in navigator) navigator.vibrate(100);
+}
+
+function importarBackup(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const dados = JSON.parse(ev.target.result);
+      if (dados.transactions && dados.goals) {
+        if (confirm("Isso vai substituir todos os seus dados atuais. Continuar?")) {
+          const transacoesImportadas = dados.transactions.map(t => ({ ...t, paid: t.paid || false }));
+          const metasImportadas = dados.goals.map(g => ({ ...g, id: g.id || Date.now() + Math.random() }));
+          localStorage.setItem('transactions', JSON.stringify(transacoesImportadas));
+          localStorage.setItem('goals', JSON.stringify(metasImportadas));
+          location.reload();
+        }
+      } else alert("Arquivo inválido");
+    } catch(err) { alert("Erro ao ler arquivo"); }
+  };
+  reader.readAsText(file);
+}
+
+els.goalForm.onsubmit = e => {
+  e.preventDefault();
+  const id = parseFloat(els.goalId.value);
+  const name = els.goalName.value;
+  const targetAmount = parseFloat(els.goalTarget.value);
+
+  if (id) { // Editando
+    const goal = goals.find(g => g.id === id);
+    if (goal) {
+      goal.name = name;
+      goal.targetAmount = targetAmount;
+    }
+  } else { // Criando
+    goals.push({
+      id: Date.now(),
+      name: name,
+      targetAmount: targetAmount,
+      currentAmount: 0
+    });
+  }
+  
+  localStorage.setItem('goals', JSON.stringify(goals));
+  els.goalForm.reset();
+  els.goalId.value = '';
+  els.goalSubmitBtn.textContent = 'Criar Meta';
+  atualizarTudo();
+  if ("vibrate" in navigator) navigator.vibrate(60);
+};
+
+els.goalsList.onclick = e => {
+  const target = e.target;
+  const li = target.closest('li');
+  if (!li) return;
+  const id = parseFloat(li.dataset.id);
+  const goal = goals.find(g => g.id === id);
+  if (!goal) return;
+
+  if (target.classList.contains('contribute-btn')) {
+    const val = prompt('Quanto deseja adicionar?', '0,00');
+    const num = parseFloat(val?.replace(',','.'));
+    if (num > 0) {
+      goal.currentAmount += num;
+      localStorage.setItem('goals', JSON.stringify(goals));
+      atualizarTudo();
+      if ("vibrate" in navigator) navigator.vibrate(80);
+    }
+  } else if (target.classList.contains('edit-btn')) {
+    els.goalId.value = goal.id;
+    els.goalName.value = goal.name;
+    els.goalTarget.value = goal.targetAmount;
+    els.goalSubmitBtn.textContent = 'Salvar Alterações';
+    els.goalName.focus();
+  } else if (target.classList.contains('delete-btn')) {
+    if (confirm(`Tem certeza que deseja apagar a meta "${goal.name}"?`)) {
+      const index = goals.findIndex(g => g.id === id);
+      goals.splice(index, 1);
+      localStorage.setItem('goals', JSON.stringify(goals));
+      atualizarTudo();
+    }
+  }
+};
+
+els.list.onclick = e => {
+  if (e.target.classList.contains('paid-checkbox')) {
+    const id = Number(e.target.dataset.id);
+    const transaction = transactions.find(t => t.id === id);
+    if (transaction) {
+      transaction.paid = e.target.checked;
+      localStorage.setItem('transactions', JSON.stringify(transactions));
+      atualizarTudo();
+    }
+    return;
+  }
+
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  const li = btn.closest('li');
+  const id = Number(li.dataset.id);
+
+  if (btn.textContent === 'Apagar') {
+    if (confirm('Apagar transação?')) {
+      const index = transactions.findIndex(t => t.id === id);
+      transactions.splice(index, 1);
+      localStorage.setItem('transactions', JSON.stringify(transactions));
+      atualizarFiltro();
+      atualizarTudo();
+    }
+  } else if (btn.textContent === 'Editar') {
+    const t = transactions.find(x => x.id === id);
+    document.getElementById('description').value = t.description.replace(" (recorrente)", "");
+    document.getElementById('amount').value = t.amount;
+    document.getElementById('type').value = t.type;
+    document.getElementById('category').value = t.category;
+    els.refMonth.value = t.referenceMonth;
+    document.getElementById('recorrente').checked = t.recorrente;
+
+    const index = transactions.findIndex(x => x.id === id);
+    transactions.splice(index, 1);
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+    atualizarFiltro();
+    atualizarTudo();
+    document.querySelector('[data-tab="add-transaction"]').click();
+  }
+};
+
+document.querySelectorAll('.nav-button').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.nav-button').forEach(b => b.classList.remove('active'));
+    document.getElementById(btn.dataset.tab).classList.add('active');
+    btn.classList.add('active');
+  };
+});
+
+els.filter.onchange = atualizarTudo;
+
+popularMeses();
+atualizarFiltro();
+atualizarTudo();
+</script>
+</body>
+</html>
